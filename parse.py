@@ -1,3 +1,7 @@
+#leboncon coin realestate data parser
+#parses raw html data from leboncoin for relevant features and stores information in 
+#objects
+import  sys
 from bs4 import BeautifulSoup
 
 #definition for listing class
@@ -34,13 +38,13 @@ class Listing(object):
         print('pictures: {}'.format(self.pics))
 
     def parseInfo(self):        
-        listing.getPrice()
-        listing.getGes()
-        listing.getEnergy()
-        listing.getLocation()
-        listing.getRooms()
-        listing.getSurfaceArea()
-        listing.getPics()
+        self.getPrice()
+        self.getGes()
+        self.getEnergy()
+        self.getLocation()
+        self.getRooms()
+        self.getSurfaceArea()
+        self.getPics()
         
     def getPrice(self):
         self.price = self.data.body.find("span", {"class": "_1F5u3"}).contents[1]
@@ -70,11 +74,14 @@ class Listing(object):
     def getPics(self):
         self.pics.append(self.data.find("div", {"class": "_2x8BQ"}).find("img")['src'])
 
-#initialize listing object
-listing = Listing("listing_sample.html")
+#loop through input files, store listing objects in an array, listings
+listings = []
+for arg in sys.argv[1:]:
+    #initialize listing object
+    listings.append(Listing(arg))
 
-#retrieve document info
-listing.parseInfo()
+    #retrieve document info
+    listings[-1].parseInfo()
 
-#print the listing data
-listing.print()
+    #print the listing data
+    listings[-1].print()

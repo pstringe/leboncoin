@@ -59,8 +59,10 @@ class Listing(object):
         self.rooms = criterea[1].contents[0]
 
     def getSurfaceArea(self):
-        criterea = self.data.body.find_all("div", {"class" : "_3Jxf3"})
-        self.surface_area = criterea[2].contents[0].split(" ", 1)[0]
+        criteria = self.data.body.find("div", {"data-qa-id" : "criteria_container"})
+        criteria = criteria.find("div", {"data-qa-id" : "criteria_item_square"})
+        criteria = criteria.find("div", {"class" : "_3Jxf3"})
+        self.surface_area = criteria.contents[0].split(" ", 1)[0]
         
     def getGes(self):
         criteria = self.data.body.find("div", {"class" : "_277XW"})

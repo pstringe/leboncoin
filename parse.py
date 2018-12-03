@@ -13,7 +13,7 @@ class Listing(object):
     rooms = 0
     superficy = 0
     ges = ""
-    energy = ""
+    energy_class = ""
     surface_area = 0
     pics = []
 
@@ -28,10 +28,11 @@ class Listing(object):
         print('price: {}'.format(self.price))
         print('location: {}'.format(self.location))
         print('ges: {}'.format(self.ges))
-        print('energy class: {}'.format(self.energy))
+        print('energy class: {}'.format(self.energy_class))
         print('rooms: {}'.format(self.rooms))
         print('surface area: {}'.format(self.surface_area))
-    
+        print('pictures: {}'.format(self.pics))
+
     def getPrice(self):
         self.price = self.data.body.find("span", {"class": "_1F5u3"}).contents[1]
     
@@ -48,15 +49,18 @@ class Listing(object):
         criterea = self.data.body.find_all("div", {"class" : "_3Jxf3"})
         self.surface_area = criterea[2].contents[0].split(" ", 1)[0]
         
-    #needs to be narrowed down
     def getGes(self):
-        self.ges = self.data.body.find("div", {"class" : "_1sd0z"}).contents[0]
+        criteria = self.data.body.find("div", {"class" : "_277XW"})
+        criteria = criteria.find("div", {"data-qa-id" : "criteria_item_ges"})
+        self.ges = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
     
-    #needs to be narrowed
     def getEnergy(self):
-        self.energy = self.data.body.find("div", {"class" : "_2RkBA _1jK6m _1sd0z"})
+        criteria = self.data.body.find("div", {"class" : "_277XW"})
+        criteria = criteria.find("div", {"data-qa-id" : "criteria_item_energy_rate"})
+        self.energy_class = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
     
-
+    def getPics(self):
+        self.pics.append(self.data.find("div", {"class": "_2x8BQ"}).find("img")['src'])
 
 #create new listing
 listing = Listing("listing_sample.html")
@@ -76,8 +80,11 @@ listing.getLocation()
 #retrieve number of rooms
 listing.getRooms()
 
-#retrieve Surface Area
+#retrieve surface area
 listing.getSurfaceArea()
+
+#retrieve picture urls
+listing.getPics()
 
 #print the listing data
 listing.print()

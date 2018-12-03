@@ -33,6 +33,15 @@ class Listing(object):
         print('surface area: {}'.format(self.surface_area))
         print('pictures: {}'.format(self.pics))
 
+    def parseInfo(self):        
+        listing.getPrice()
+        listing.getGes()
+        listing.getEnergy()
+        listing.getLocation()
+        listing.getRooms()
+        listing.getSurfaceArea()
+        listing.getPics()
+        
     def getPrice(self):
         self.price = self.data.body.find("span", {"class": "_1F5u3"}).contents[1]
     
@@ -53,7 +62,6 @@ class Listing(object):
         criteria = self.data.body.find("div", {"class" : "_277XW"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_ges"})
         self.ges = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
-    
     def getEnergy(self):
         criteria = self.data.body.find("div", {"class" : "_277XW"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_energy_rate"})
@@ -62,29 +70,11 @@ class Listing(object):
     def getPics(self):
         self.pics.append(self.data.find("div", {"class": "_2x8BQ"}).find("img")['src'])
 
-#create new listing
+#initialize listing object
 listing = Listing("listing_sample.html")
 
-#retrieve price
-listing.getPrice()
-
-#retrieve ges
-listing.getGes()
-
-#retrive energy rating
-listing.getEnergy()
-
-#retrieve location
-listing.getLocation()
-
-#retrieve number of rooms
-listing.getRooms()
-
-#retrieve surface area
-listing.getSurfaceArea()
-
-#retrieve picture urls
-listing.getPics()
+#retrieve document info
+listing.parseInfo()
 
 #print the listing data
 listing.print()

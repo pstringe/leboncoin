@@ -8,27 +8,17 @@ from bs4 import BeautifulSoup
 class Listing(object):
     raw = {}
     data = {}
-    lattitude = ""
-    longitude = ""
-    price = 0
-    location = {}
-    zipcode = ""
-    agency_or_individual = False
-    rooms = 0
-    superficy = 0
-    ges = ""
-    energy_class = ""
-    surface_area = 0
-    pics = []
-
+    
     def __init__(self, file):
         self.raw["name"] = file
         self.raw["file"] =  open(self.raw["name"], 'r')
+        self.name = self.raw["name"]
         html = self.raw["file"].read()
         self.data = BeautifulSoup(html, 'html.parser')
 
     def print(self):
-        print('title: {}'.format(self.raw["name"]))
+        print('\n')
+        print('file: {}'.format(self.name))
         print('price: {}'.format(self.price))
         print('location: {}'.format(self.location))
         print('ges: {}'.format(self.ges))
@@ -51,12 +41,17 @@ class Listing(object):
     
     def getLocation(self):
         location_data = self.data.body.find("div", {"class" : "_1aCZv"}).span.contents
+        self.location = {}
         self.location["city"] = location_data[1]
         self.location["zip"] = location_data[7]
 
     def getRooms(self):
-        criterea = self.data.body.find_all("div", {"class" : "_3Jxf3"})
-        self.rooms = criterea[1].contents[0]
+        #criterea = self.data.body.find_all("div", {"class" : "_3Jxf3"})
+        #self.rooms = criterea[1].contents[0]
+        criteria = self.data.body.find("div", {"data-qa-id" : "criteria_container"})
+        criteria = criteria.find("div", {"data-qa-id" : "criteria_item_rooms"})
+        criteria = criteria.find("div", {"class" : "_3Jxf3"})
+        self.rooms = criteria.contents[0]
 
     def getSurfaceArea(self):
         criteria = self.data.body.find("div", {"data-qa-id" : "criteria_container"})
@@ -68,22 +63,29 @@ class Listing(object):
         criteria = self.data.body.find("div", {"class" : "_277XW"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_ges"})
         self.ges = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
+    
     def getEnergy(self):
         criteria = self.data.body.find("div", {"class" : "_277XW"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_energy_rate"})
         self.energy_class = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
-    
+   
+    #need to correct this
     def getPics(self):
-        self.pics.append(self.data.find("div", {"class": "_2x8BQ"}).find("img")['src'])
+        self.pics = self.data.find("div", {"class": "_2x8BQ"}).find("img")['src']
 
 #loop through input files, store listing objects in an array, listings
 listings = []
 for arg in sys.argv[1:]:
+    listing = Listing(arg)
+    
     #initialize listing object
-    listings.append(Listing(arg))
-
+    listings.append(listing)
+    print(listings)
     #retrieve document info
     listings[-1].parseInfo()
 
-    #print the listing data
     listings[-1].print()
+
+#make sure listings are being stored correctly
+for listing in listings:
+    listing.print()

@@ -1,7 +1,12 @@
-#leboncon coin realestate data parser
-#parses raw html data from leboncoin for relevant features and stores information in 
-#objects
+"""
+Poitier Stringer
+    leboncon coin realestate data parserparses raw html data from leboncoin.com
+    for relevant features and stores information in array of objects
+"""
+
 import  sys
+import  geocoder
+import  time
 from bs4 import BeautifulSoup
 
 #definition for listing class
@@ -28,50 +33,59 @@ class Listing(object):
         print('pictures: {}'.format(self.pics))
 
     def parseInfo(self):        
-        self.getPrice()
-        self.getGes()
-        self.getEnergy()
-        self.getLocation()
-        self.getRooms()
-        self.getSurfaceArea()
-        self.getPics()
+        self.setPrice()
+        self.setGes()
+        self.setEnergy()
+        self.setLocation()
+        self.setRooms()
+        self.setSurfaceArea()
+        self.setPics()
         
-    def getPrice(self):
+    def setPrice(self):
         self.price = self.data.body.find("span", {"class": "_1F5u3"}).contents[1]
     
-    def getLocation(self):
+    def setLocation(self):
         location_data = self.data.body.find("div", {"class" : "_1aCZv"}).span.contents
         self.location = {}
         self.location["city"] = location_data[1]
         self.location["zip"] = location_data[7]
+        self.location["coords"] = geoCode(self.location)
 
-    def getRooms(self):
-        #criterea = self.data.body.find_all("div", {"class" : "_3Jxf3"})
-        #self.rooms = criterea[1].contents[0]
+    def setRooms(self):
         criteria = self.data.body.find("div", {"data-qa-id" : "criteria_container"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_rooms"})
         criteria = criteria.find("div", {"class" : "_3Jxf3"})
         self.rooms = criteria.contents[0]
 
-    def getSurfaceArea(self):
+    def setSurfaceArea(self):
         criteria = self.data.body.find("div", {"data-qa-id" : "criteria_container"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_square"})
         criteria = criteria.find("div", {"class" : "_3Jxf3"})
         self.surface_area = criteria.contents[0].split(" ", 1)[0]
         
-    def getGes(self):
+    def setGes(self):
         criteria = self.data.body.find("div", {"class" : "_277XW"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_ges"})
         self.ges = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
     
-    def getEnergy(self):
+    def setEnergy(self):
         criteria = self.data.body.find("div", {"class" : "_277XW"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_energy_rate"})
         self.energy_class = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
    
     #need to correct this
-    def getPics(self):
+    def setPics(self):
         self.pics = self.data.find("div", {"class": "_2x8BQ"}).find("img")['src']
+
+def geoCode(location):
+    time.sleep(1)
+    g = geocoder.google(location['zip'])
+    if g.status == 'OK':
+        print(g.status)
+        return g.latlong
+    else:
+        print('status: {}'.format(g.status))
+        return {}
 
 #loop through input files, store listing objects in an array, listings
 listings = []
@@ -80,12 +94,11 @@ for arg in sys.argv[1:]:
     
     #initialize listing object
     listings.append(listing)
-    print(listings)
+    
     #retrieve document info
     listings[-1].parseInfo()
-
     listings[-1].print()
-
+    
 #make sure listings are being stored correctly
 for listing in listings:
     listing.print()

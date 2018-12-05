@@ -49,34 +49,47 @@ class Listing(object):
         self.location = {}
         self.location["city"] = location_data[1]
         self.location["zip"] = location_data[7]
-        self.location["coords"] = geoCode(self.location)
+        #self.location["coords"] = geoCode(self.location)
 
     def setRooms(self):
+        self.rooms = None
         criteria = self.data.body.find("div", {"data-qa-id" : "criteria_container"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_rooms"})
-        criteria = criteria.find("div", {"class" : "_3Jxf3"})
-        self.rooms = criteria.contents[0]
+        if (criteria):
+            criteria = criteria.find("div", {"class" : "_3Jxf3"})
+            self.rooms = criteria.contents[0]
 
     def setSurfaceArea(self):
+        self.surface_area = None
         criteria = self.data.body.find("div", {"data-qa-id" : "criteria_container"})
-        criteria = criteria.find("div", {"data-qa-id" : "criteria_item_square"})
-        criteria = criteria.find("div", {"class" : "_3Jxf3"})
-        self.surface_area = criteria.contents[0].split(" ", 1)[0]
+        if (criteria):
+            criteria = criteria.find("div", {"data-qa-id" : "criteria_item_square"})
+            if (criteria):
+                criteria = criteria.find("div", {"class" : "_3Jxf3"})
+                self.surface_area = criteria.contents[0].split(" ", 1)[0]
         
     def setGes(self):
+        self.ges = None
         criteria = self.data.body.find("div", {"class" : "_277XW"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_ges"})
-        self.ges = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
+        if (criteria and criteria.find("div", {"class" : "_1sd0z"})):
+            self.ges = criteria.find("div", {"class" : "_1sd0z"}).contents[0]
     
     def setEnergy(self):
+        self.energy_class = None
         criteria = self.data.body.find("div", {"class" : "_277XW"})
         criteria = criteria.find("div", {"data-qa-id" : "criteria_item_energy_rate"})
-        self.energy_class = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
+        if (criteria and  criteria.find("div", {"class" : "_1sd0z"})):
+            self.energy_class = criteria.find("div", {"class" : "_1sd0z"}).contents[0] 
    
     #need to correct this
     def setPics(self):
-        self.pics = self.data.find("div", {"class": "_2x8BQ"}).find("img")['src']
+        self.pics = None
+        if (self.data.find("div", {"class": "_2x8BQ"})):
+            self.pics = self.data.find("div", {"class": "_2x8BQ"}).find("img")['src']
 
+#geocoding to obtain longitutde and lattitude. (Not yet working)
+"""
 def geoCode(location):
     time.sleep(1)
     g = geocoder.google(location['zip'])
@@ -86,6 +99,7 @@ def geoCode(location):
     else:
         print('status: {}'.format(g.status))
         return {}
+"""
 
 #loop through input files, store listing objects in an array, listings
 listings = []

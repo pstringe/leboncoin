@@ -44,7 +44,8 @@ class Listing(object):
     def setPrice(self, data):
         self.price = None
         if (data.body):
-            self.price = data.body.find("span", {"class": "_1F5u3"}).contents[1]
+            if ( data.body.find("span", {"class": "_1F5u3"})):
+                self.price = data.body.find("span", {"class": "_1F5u3"}).contents[1]
     
     def setLocation(self, data):
         self.location = None
@@ -103,17 +104,18 @@ class ListingEncoder(JSONEncoder):
 
 #retrieve longitude/lattitudes
 def geoCode(loc):
-    time.sleep(1)
     g = Nominatim(user_agent="leboncoin scraper")
-    coords = g.geocode(loc["zip"])
+    try:
+        coords = g.geocode(loc["zip"])
+    except:
+        return (None)
     return([coords.longitude, coords.latitude])
 
     
 
 #loop through input files, store listing objects in an array, listings
 listings = []
-outputFile = open("out.json", "w")
-
+outputFile = open("out1.json", "a")
 for arg in sys.argv[1:]:
     listing = Listing(arg)
     #init data
@@ -131,7 +133,7 @@ for arg in sys.argv[1:]:
     s = json.dumps(listings[-1], cls=ListingEncoder)
     print(s)
     outputFile.write(s)
-    
+    outputFile.write('\n')
 #make sure listings are being stored correctly
 for listing in listings:
     print(json.dumps(listing))

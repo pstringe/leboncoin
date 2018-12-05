@@ -10,7 +10,6 @@ records = []
 for datum in data:
     print(datum)
     records.append(json.loads(datum))
-    pprint(datum)
 
 #Here are your objects
 for r in records:

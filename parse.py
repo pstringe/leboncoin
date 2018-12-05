@@ -5,7 +5,8 @@ Poitier Stringer
 """
 
 import  sys
-import  geocoder
+from geopy.geocoders import Nominatim
+#import  geocoder
 import  time
 from bs4 import BeautifulSoup
 
@@ -49,7 +50,7 @@ class Listing(object):
         self.location = {}
         self.location["city"] = location_data[1]
         self.location["zip"] = location_data[7]
-        #self.location["coords"] = geoCode(self.location)
+        self.location["coords"] = geoCode(self.location)
 
     def setRooms(self):
         self.rooms = None
@@ -88,18 +89,12 @@ class Listing(object):
         if (self.data.find("div", {"class": "_2x8BQ"})):
             self.pics = self.data.find("div", {"class": "_2x8BQ"}).find("img")['src']
 
-#geocoding to obtain longitutde and lattitude. (Not yet working)
-"""
-def geoCode(location):
+#retrieve longitude/lattitudes
+def geoCode(loc):
     time.sleep(1)
-    g = geocoder.google(location['zip'])
-    if g.status == 'OK':
-        print(g.status)
-        return g.latlong
-    else:
-        print('status: {}'.format(g.status))
-        return {}
-"""
+    g = Nominatim(user_agent="leboncoin scraper")
+    coords = g.geocode(loc["zip"])
+    return({coords.longitude, coords.latitude})
 
 #loop through input files, store listing objects in an array, listings
 listings = []
